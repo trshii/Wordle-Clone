@@ -1,12 +1,27 @@
 import random
 import nltk
+import os
 from enum import Enum, auto
 from collections.abc import Sequence
-from nltk.corpus import words
-nltk.download('words')
 
+if not os.path.exists('valid_words.txt'):
+    from nltk.corpus import words, brown
+    nltk.download('words')
+    nltk.download('brown')
 
-valid_words = {w.lower() for w in words.words() if len(w) == 5}
+    common_words = set(w.lower() for w in brown.words())
+    valid_words = {w.lower() for w in words.words() if len(w) == 5}
+    refined_valid_words = [w for w in valid_words if w in common_words]
+
+    with open('valid_words.txt', 'w') as f:
+        for word in refined_valid_words:
+            f.write(f"{word}\n")
+else:
+    with open('valid_words.txt', 'r') as f:
+        refined_valid_words = [line.strip() for line in f]
+
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 class Verdict(Enum):
     CORRECT = auto()
@@ -83,7 +98,7 @@ class WordleView:
     def ask_for_guess(self) -> str:
         while True:
             guess = str(input('Enter a valid 5-letter word: \n')).lower()
-            if len(guess) == 5 and guess in valid_words:
+            if len(guess) == 5 and guess in refined_valid_words:
                 break
         return guess
     
@@ -104,6 +119,7 @@ class WordleController:
         self.view = view
 
     def start(self):
+        clear_terminal()
         model = self.model
         view = self.view
 
@@ -117,7 +133,7 @@ class WordleController:
             view.print_lose_message(model.target)
 
 if __name__ == '__main__':
-    target_word = random.choice(list(valid_words))
+    target_word = random.choice(list(refined_valid_words))
     attempt_count = 6
     model = WordleModel(target_word, attempt_count)
     view = WordleView()
