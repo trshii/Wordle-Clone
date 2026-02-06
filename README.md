@@ -1,5 +1,5 @@
 # Wordle-Clone
-##Progression of Wordle Clone Creation
+## Progression of Wordle Clone Creation
 
 Welcome to my Wordle Clone Repository, where I'll be storing my wordle clone project progressions.
 
