@@ -33,6 +33,17 @@ assets = {
     Verdict.PARTIAL: '🟨',
     Verdict.WRONG: '⬜'
 }
+
+GREEN = '\033[92m'
+YELLOW = '\033[93m'
+GRAY = '\033[90m'
+RESET = '\033[0m'
+
+color_map = {
+    Verdict.CORRECT: GREEN,
+    Verdict.PARTIAL: YELLOW,
+    Verdict.WRONG: GRAY
+}
     
 class WordleModel:
     def __init__(self, target_word: str, attempts: int):
@@ -102,16 +113,24 @@ class WordleView:
                 break
         return guess
     
-    def print_feedback(self, verdict: Sequence[Verdict]):
-        feedback_out = ''
-        for ch in verdict:
-            feedback_out += assets[ch]
-        print(feedback_out)
+    def print_feedback(self, guess: str, verdict: Sequence[Verdict]):
+
+        colored_output = ""
+        
+        for char, v in zip(guess.upper(), verdict):
+            color = color_map[v]
+            colored_output += f"{color} {char} {RESET}"
+            
+        print(f"\n{colored_output}")
+
+        emoji_output = " ".join(assets[v] for v in verdict)
+        print(f"{emoji_output}\n")
+
         if all(v == Verdict.CORRECT for v in verdict):
             print('Correct!')   
 
     def print_lose_message(self, target: str):
-        print(f"You lost! The word was: {target}")
+        print(f"You lost! The word was: {target.upper()}")
 
 class WordleController:
     def __init__(self, model: WordleModel, view: WordleView):
@@ -127,7 +146,7 @@ class WordleController:
             print(f"\nAttempts remaining: {self.model.attempts}")
             guess = view.ask_for_guess()
             verdict = model.check_guess(guess)
-            view.print_feedback(verdict)
+            view.print_feedback(guess, verdict)
 
         if not model.did_player_win:
             view.print_lose_message(model.target)
