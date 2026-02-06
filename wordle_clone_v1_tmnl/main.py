@@ -2,7 +2,7 @@ import random
 import nltk
 from enum import Enum, auto
 from collections.abc import Sequence
-from nltk.corpus import words, brown
+from nltk.corpus import words
 nltk.download('words')
 
 
